@@ -1217,6 +1217,7 @@ def write_video(
     vname: Optional[str] = None,
     vpath: Optional[str] = ".",
     norm=True,
+    framerate=30,
     options={"crf": "18", "preset": "ultrafast"},
 ) -> str:
     """
@@ -1235,6 +1236,8 @@ def write_video(
     norm : bool, optional
         Whether to normalize the values of the input array such that they span
         the full pixel depth range (0, 255). By default `True`.
+    framerate : int, optional
+        The framerate for output video, by default 30.
     options : dict, optional
         Optional output arguments passed to `ffmpeg`. By default `{"crf": "18",
         "preset": "ultrafast"}`.
@@ -1268,7 +1271,7 @@ def write_video(
     process = (
         ffmpeg.input("pipe:", format="rawvideo", pix_fmt="gray", s="{}x{}".format(w, h))
         .filter("pad", int(np.ceil(w / 2) * 2), int(np.ceil(h / 2) * 2))
-        .output(fname, pix_fmt="yuv420p", vcodec="libx264", r=30, **options)
+        .output(fname, pix_fmt="yuv420p", vcodec="libx264", r=framerate, **options)
         .overwrite_output()
         .run_async(pipe_stdin=True)
     )
@@ -1306,6 +1309,7 @@ def generate_videos(
     gain=1.5,
     vpath=".",
     vname="minian.mp4",
+    framerate=30,
     options={"crf": "18", "preset": "ultrafast"},
 ) -> str:
     """
@@ -1351,6 +1355,8 @@ def generate_videos(
         Desired folder containing the resulting video. By default `"."`.
     vname : str, optional
         Desired name of the video. By default `"minian.mp4"`.
+    framerate : int, optional
+        The framerate to pass to ffmpeg for the output video. By default 30.
     options : dict, optional
         Output options for `ffmpeg`, passed directly to :func:`write_video`. By
         default `{"crf": "18", "preset": "ultrafast"}`.
@@ -1384,7 +1390,7 @@ def generate_videos(
         "height",
         coords="minimal",
     )
-    return write_video(vid, vname, vpath, norm=False, options=options)
+    return write_video(vid, vname, vpath, norm=False, options=options, framerate=framerate)
 
 
 def datashade_ndcurve(
